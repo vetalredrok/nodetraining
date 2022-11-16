@@ -1,105 +1,59 @@
-const fs = require('node:fs');
-const builder = require('./student/create');
+const express = require('express');
 
-// fs.readFile('./text.txt', (err, data) => {
-//     console.log(err, 'ERR');
-//
-//     console.log(data.toString());
-// });
-//
-// fs.appendFile('./text.txt', '\nHELLO CHAT', err => {
-//     console.log(err, 'ERR');
-//
-// })
-//
-// fs.writeFile('./text.txt', 'WRITE FILE', (err)=>{ //перезаписує все
-//     console.log(err, 'ERR');
-// })
-//
-// fs.readFile('./text.txt', (err, data)=>{
-//     fs.appendFile('./cope.txt', data, (err)=>{
-//         console.log(err);
-//     })
-// })
-//
-// fs.mkdir('./students', err => {
-//     console.log(err);
-// })
-//
-// fs.appendFile('./students/data.json', JSON.stringify({name: 'Dima'}), err => {
-//     console.log(err);
-// })
-//
-// fs.unlink('./cope.txt', err => {   // видаляє
-//     console.log(err);
-// })
-//
-// fs.rmdir('./students', {recursive:true}, err => {
-//     console.log(err);
-// })
-//
-// fs.rename('./text.txt', './users.txt', err => {
-//     console.log(err);
-// })
-//
-// fs.rename('./users.txt', './student/users.txt', err => {
-//     console.log(err);
-// })
-//
-// fs.copyFile('./student/users.txt', './copy.txt', err => {
-//     console.log(err);
-// })
+const userDb = require('./database/user');
 
-// fs.readdir('./student', (err, files) => {
-//     console.log(files);
-//
-//     for (const file of files) {
-//         fs.stat(`./student/${file}`, (err1, stats) => {
-//             console.log('-----');
-//             console.log(`./student/${file}`);
-//             console.log(stats.isDirectory());
-//
-//             if(stats.isFile()){
-//                 fs.readFile(`./student/${file}`, (err2, data) => {
-//                     console.log(data.toString());
-//                 })
-//             }
-//         })
-//     }
-//
-// });
+const app = express();
 
-// fs.readdir('./student', {withFileTypes: true}, (err, files) => {
-//     console.log(files);
-//
-//     for (const file of files) {
-//         console.log(file.isFile());
-//     }
-// })
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
 
-// fs.readdir('./hw_1', {withFileTypes: true}, (err, files) => {
-//     console.log(err);
-//     for (const file of files) {
-//         console.log(file);
-//         console.log(file.isFile());
-//         if (file.isFile()){
-//             fs.readFile(`./hw_1/${file}`, (err1, data) => {
-//                 console.log(err1);
-//                 console.log(data);
-//             })
-//         }
-//     }
-// })
+app.listen(5000, () => {
+    console.log('Server listen 5000');
+});
 
+app.get('/users', (req, res) => {
+   console.log('Users endpoint');
 
-// fs.readdir('./hw_1', (err, files) => {
-//     console.log(err);
-//     console.log(files);
-// })
+   // res.json({
+   //     user: 'Victor'
+   // })
 
+    // res.end({
+    //     user: 'Victor'
+    // })
 
-// let student = builder.studentBuilder('Sonya', 16);
-//
-// console.log(student)
-// console.log(student.name)
-// console.log(student.age)
+    // res.status(402).json('Its okay')
+
+    res.json(userDb);
+});
+
+app.get('/', (req, res) => {
+    res.json('Welcome')
+});
+
+app.get('/users/:userId', (req, res) => {
+    console.log(req.params);
+
+    const {userId} = req.params;
+
+    res.json(userDb[userId]);
+});
+
+app.post('/users', (req, res) => {
+    const userInfo = req.body;
+    console.log(userInfo);
+
+    userDb.push(userInfo);
+    res.status(201).json('Created');
+
+});
+
+app.put('/users/:userId', (req, res) => {
+
+    const newUserInfo = req.body;
+    const userId = req.params.userId;
+
+    userDb[userId] = newUserInfo;
+
+    res.json('Updated')
+});
